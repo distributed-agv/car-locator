@@ -42,28 +42,18 @@ def locate_cars(image, car_num, row_num, col_num):
         if is_precise(row_idx) and is_precise(col_idx):
             row_idx = round(row_idx)
             col_idx = round(col_idx)
-            result.extend(
-                (row_idx + row_offset, col_idx + col_offset)
-                for row_offset, col_offset in [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
-                if is_valid((row_idx + row_offset, col_idx + col_offset))
-            )
+            result.append([(row_idx, col_idx)])
         elif is_precise(row_idx):
             row_idx = round(row_idx)
-            result.extend(
-                pos
-                for pos in [(row_idx, math.floor(col_idx)), (row_idx, math.ceil(col_idx))]
-                if is_valid(pos)
-            )
+            result.append([(row_idx, math.floor(col_idx)), (row_idx, math.ceil(col_idx))])
         elif is_precise(col_idx):
             col_idx = round(col_idx)
-            result.extend(
-                pos
-                for pos in [(math.floor(row_idx), col_idx), (math.ceil(row_idx), col_idx)]
-                if is_valid(pos)
-            )
+            result.append([(math.floor(row_idx), col_idx), (math.ceil(row_idx), col_idx)])
         else:
             raise RuntimeError('Row index and column index are both imprecise')
-    result = list(set(result))
+        for pos in result[-1]:
+            if not is_valid(pos):
+                raise RuntimeError('Invalid position')
 
     return result
 
