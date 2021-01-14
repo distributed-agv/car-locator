@@ -2,6 +2,7 @@ import redis
 import argparse
 import json
 import hashlib
+import os
 
 
 if __name__ == '__main__':
@@ -10,8 +11,9 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--nonce', type=int, help='Redis recovery nonce')
     args = parser.parse_args()
     
-    config = json.load(open('config.json', 'r'))
-    locator_recover_script = open('locator_recover.lua', 'r').read().encode('utf8')
+    path = os.path.split(__file__)[0]
+    config = json.load(open(f'{path}/config.json', 'r'))
+    locator_recover_script = open(f'{path}/locator_recover.lua', 'r').read().encode('utf8')
     locator_recover_script_sha = hashlib.sha1(locator_recover_script).hexdigest()
     
     if args.debug:
