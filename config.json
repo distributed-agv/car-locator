@@ -1,0 +1,13 @@
+{
+    "redis_addr": {
+        "host": "127.0.0.1",
+        "port": 6379
+    },
+    "car_num": 2,
+    "row_num": 5,
+    "col_num": 5,
+    "debug_car_map": [
+        [[1, 1]],
+        [[3, 4], [4, 4]]
+    ]
+}
