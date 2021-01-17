@@ -3,6 +3,7 @@ import argparse
 import json
 import hashlib
 import os
+import xmlrpc.client
 
 
 if __name__ == '__main__':
@@ -17,7 +18,8 @@ if __name__ == '__main__':
     locator_recover_script_sha = hashlib.sha1(locator_recover_script).hexdigest()
     
     if args.debug:
-        car_map = [[tuple(pos) for pos in poss] for poss in config['debug_car_map']]
+        proxy = xmlrpc.client.ServerProxy(f"http://{config['locator_addr']['host']}:{config['locator_addr']['port']}")
+        car_map = [[tuple(pos) for pos in poss] for poss in proxy.locate_cars()]
     else:
         raise NotImplementedError('Please use debug mode')
 
@@ -31,4 +33,5 @@ if __name__ == '__main__':
             pos = poss[0]
             poss = [(pos[0] + offset[0], pos[1] + offset[1]) for offset in [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]]
             poss = list(filter(is_valid, poss))
-        r.evalsha(locator_recover_script_sha, 0, car_id, args.nonce, config['car_num'], *[f'({pos[0]},{pos[1]})' for pos in poss])
+        r.evalsha(locator_recover_script_sha, 0, car_id, args.nonce, config['car_num'],
+                  *[f'({pos[0]},{pos[1]})' for pos in poss])
