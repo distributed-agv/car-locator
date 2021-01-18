@@ -4,6 +4,8 @@ import json
 import hashlib
 import os
 import xmlrpc.client
+import algorithm
+import numpy as np
 
 
 if __name__ == '__main__':
@@ -13,15 +15,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     path = os.path.split(__file__)[0]
-    config = json.load(open(f'{path}/config.json', 'r'))
-    locator_recover_script = open(f'{path}/locator_recover.lua', 'r').read().encode('utf8')
+    if len(path) > 0:
+        path += '/'
+    config = json.load(open(f'{path}config.json', 'r'))
+    locator_recover_script = open(f'{path}locator_recover.lua', 'r').read().encode('utf8')
     locator_recover_script_sha = hashlib.sha1(locator_recover_script).hexdigest()
     
     if args.debug:
         proxy = xmlrpc.client.ServerProxy(f"http://{config['locator_addr']['host']}:{config['locator_addr']['port']}")
         car_map = [[tuple(pos) for pos in poss] for poss in proxy.locate_cars()]
     else:
-        raise NotImplementedError('Please use debug mode')
+        proxy = xmlrpc.client.ServerProxy(f"http://{config['camera_addr']['host']}:{config['camera_addr']['port']}")
+        image = np.array(proxy.take_photo(), dtype=np.uint8)
+        car_map = algorithm.locate_cars(image, config['car_num'], config['row_num'], config['col_num'])
 
     def is_valid(pos):
         return pos[0] >= 0 and pos[0] < config['row_num'] and pos[1] >= 0 and pos[0] < config['col_num']
